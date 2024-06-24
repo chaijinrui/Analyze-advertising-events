@@ -6,6 +6,10 @@ import re
 
 # from Log_dataframe import get_log_dataframe
 
+'''
+连接手机、获取日志、断开日志
+'''
+
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 启动adb logcat命令并将其输出定向到管道      标签为LOGCAT_CONSOLE且日志等级为INFO的日志
@@ -29,7 +33,6 @@ while True:
     if line:
         log_list.append(line)
 
-
     # 判断广告事件
     if "==== 广告事件 ===" in line:
         # 动态提添加到列表
@@ -46,16 +49,31 @@ logcat.kill()
 # get_log_dataframe(log_list)
 
 
+'''
+把所有日志都组成一个dataframe
+'''
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*)"
 tem_list = []
 for log_line in log_list:
-    match=re.match(log_pattern, log_list)
+    match = re.match(log_pattern, log_list)
     if match:
-        timestamp,level,message = match.groups()
-        tem_list.append([timestamp,level,message])
+        timestamp, level, message = match.groups()
+        tem_list.append([timestamp, level, message])
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
-columns=[]
+columns = [
+    'Timestamp',
+    'Level',
+    'Message'
+]
+df = pd.DataFrame(tem_list, columns=columns)
+# 将Timestamp列转换为datetime格式
+df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
+# 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
+df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
+logging.info(f'df: \n{df.to_string()}')
+
+
 
 
 
