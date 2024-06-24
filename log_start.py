@@ -1,6 +1,8 @@
 import subprocess
 import time
 import logging
+from urllib.parse import unquote_plus
+
 import pandas as pd
 import re
 
@@ -9,11 +11,12 @@ import re
 '''
 连接手机、获取日志、断开日志
 '''
-
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 启动adb logcat命令并将其输出定向到管道      标签为LOGCAT_CONSOLE且日志等级为INFO的日志
 logging.info("启动adb logcat命令")
+# 清除日志
+subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-c'])
 logcat = subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-s', 'LOGCAT_CONSOLE'], stdout=subprocess.PIPE)
 log_list = []
 
@@ -51,14 +54,24 @@ logcat.kill()
 
 '''
 把所有日志都组成一个dataframe
-'''
 
+'''
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
+ve_value_pattern = r've=(.*?)(&|$)'
 tem_list = []
 for log_line in log_list:
     match = re.match(log_pattern, log_line)
     if match:
         timestamp, level, _, message = match.groups()
+        '''
+        打印版本号
+        '''
+        if "sdk2_adconfig_req_data" in message:
+            decoded_url_with_plus = unquote_plus(message)
+            match = re.search(ve_value_pattern, decoded_url_with_plus)
+            if match:
+                ve_value = match.group(1)
+                logging.info(f've_value: {ve_value}')
         tem_list.append([timestamp, level, message])
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
@@ -74,6 +87,14 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 logging.info(f'df: \n{df.to_string()}')
 
+'''
+打印error
+'''
+
+'''
+广告加载出错的时候
+'''
+
 # 正则表达式
 ad_pattern = r'(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+V\s+LOGCAT_CONSOLE:\s+.*\sadId\[(\d+)\],\s+state\[(.*?)\],\s+adParam\[(.*?)\]?,\s+adOrderNo\[(.*?)\],\s+adType\[(\d+)\],\s+sp\[(.*?)\]'
 data_list = []
@@ -85,7 +106,7 @@ for log_line in log_list:
         # logging.info(f'匹配到日志: {match.groups()}')
         data_list.append([timestamp, adId, state, adParam, adOrderNo, adType, sp])
     else:
-        logging.warning(f'没有匹配到日志: {log_line}')
+        logging.warning(f'没有匹配到事件日志: {log_line}')
 # 将数据转换为DataFrame
 columns = ['Timestamp', 'adId', 'State', 'adParam', 'adOrderNo', 'adType', 'sp']
 df = pd.DataFrame(data_list, columns=columns)
