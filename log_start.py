@@ -52,12 +52,12 @@ logcat.kill()
 '''
 把所有日志都组成一个dataframe
 '''
-log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*)"
+log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
 tem_list = []
 for log_line in log_list:
-    match = re.match(log_pattern, log_list)
+    match = re.match(log_pattern, log_line)
     if match:
-        timestamp, level, message = match.groups()
+        timestamp, _, level, message = match.groups()
         tem_list.append([timestamp, level, message])
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
@@ -72,10 +72,6 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 logging.info(f'df: \n{df.to_string()}')
-
-
-
-
 
 # 正则表达式
 ad_pattern = r'(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+V\s+LOGCAT_CONSOLE:\s+.*\sadId\[(\d+)\],\s+state\[(.*?)\],\s+adParam\[(.*?)\]?,\s+adOrderNo\[(.*?)\],\s+adType\[(\d+)\],\s+sp\[(.*?)\]'
