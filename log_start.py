@@ -52,12 +52,13 @@ logcat.kill()
 '''
 把所有日志都组成一个dataframe
 '''
+
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
 tem_list = []
 for log_line in log_list:
     match = re.match(log_pattern, log_line)
     if match:
-        timestamp, _, level, message = match.groups()
+        timestamp, level, _, message = match.groups()
         tem_list.append([timestamp, level, message])
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
