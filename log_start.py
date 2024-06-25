@@ -6,7 +6,6 @@ from urllib.parse import unquote_plus
 import pandas as pd
 import re
 
-
 '''
 连接手机、获取日志、断开日志
 '''
@@ -86,9 +85,16 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 logging.info(f'df: \n{df.to_string()}')
 
+
 '''
 打印error
 '''
+err_row = df.query('Level == "E"')
+if err_row.empty:
+    logging.info('没有报错')
+err_row_message = err_row['Message']
+logging.info(f'err_row_message: {err_row_message}')
+
 
 '''
 广告加载出错的时候
