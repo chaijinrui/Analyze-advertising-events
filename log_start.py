@@ -34,10 +34,10 @@ while True:
     if line:
         log_list.append(line)
 
-    # 判断广告事件
-    if "==== 广告事件 ===" in line:
-        # 动态提添加到列表
-        log_list.append(line)
+    # # 判断广告事件
+    # if "==== 广告事件 ===" in line:
+    #     # 动态提添加到列表
+    # log_list.append(line)
 
     # 打印error
     if "E/" in line:
@@ -52,7 +52,6 @@ logcat.kill()
 
 '''
 把所有日志都组成一个dataframe
-
 '''
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
 ve_value_pattern = r've=(.*?)(&|$)'
@@ -69,7 +68,7 @@ for log_line in log_list:
             match = re.search(ve_value_pattern, decoded_url_with_plus)
             if match:
                 ve_value = match.group(1)
-                logging.info(f've_value: {ve_value}')
+                logging.info(f'版本号: {ve_value}')
         tem_list.append([timestamp, level, message])
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
@@ -85,21 +84,23 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 logging.info(f'df: \n{df.to_string()}')
 
-
 '''
 打印error
 '''
 err_row = df.query('Level == "E"')
 if err_row.empty:
     logging.info('没有报错')
-err_row_message = err_row['Message']
-logging.info(f'err_row_message: {err_row_message}')
-
+else:
+    err_row_message = err_row['Message']
+    logging.info(f'err_row_message: {err_row_message}')
 
 '''
 广告加载出错的时候
 '''
 
+'''
+广告事件
+'''
 # 正则表达式
 ad_pattern = r'(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+V\s+LOGCAT_CONSOLE:\s+.*\sadId\[(\d+)\],\s+state\[(.*?)\],\s+adParam\[(.*?)\]?,\s+adOrderNo\[(.*?)\],\s+adType\[(\d+)\],\s+sp\[(.*?)\]'
 data_list = []
@@ -110,8 +111,8 @@ for log_line in log_list:
         timestamp, _, _, adId, state, adParam, adOrderNo, adType, sp = match.groups()
         # logging.info(f'匹配到日志: {match.groups()}')
         data_list.append([timestamp, adId, state, adParam, adOrderNo, adType, sp])
-    else:
-        logging.warning(f'没有匹配到事件日志: {log_line}')
+    # else:
+    #     logging.warning(f'没有匹配到事件日志: {log_line}')
 # 将数据转换为DataFrame
 columns = ['Timestamp', 'adId', 'State', 'adParam', 'adOrderNo', 'adType', 'sp']
 df = pd.DataFrame(data_list, columns=columns)
@@ -119,12 +120,13 @@ df = pd.DataFrame(data_list, columns=columns)
 df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
-
-# 增加缺失值标记 Missing
+# 增加缺失值标记 Missing，df2是可以分析广告事件的数据
 df2 = df.applymap(lambda x: 'Missing' if x.strip() == '' else x)
 logging.info(f'df2: \n{df2.to_string()}')
 
-# 判断adOrderNo是否正确（之前出现过bug：adOrderNo非本广告位的订单号）
+'''
+判断adOrderNo是否正确（之前出现过bug：adOrderNo非本广告位的订单号）
+'''
 df2.apply(lambda row: logging.warning(f'adOrderNo和adId不符: {row["adOrderNo"]}, {row["adId"]}')
 if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 
