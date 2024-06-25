@@ -6,7 +6,6 @@ from urllib.parse import unquote_plus
 import pandas as pd
 import re
 
-# from Log_dataframe import get_log_dataframe
 
 '''
 连接手机、获取日志、断开日志
