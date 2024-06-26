@@ -3,8 +3,11 @@ import time
 import logging
 from urllib.parse import unquote_plus
 
+
 import pandas as pd
 import re
+
+from Determining_ad.poor_ad import *
 
 '''
 连接手机、获取日志、断开日志
@@ -82,7 +85,7 @@ df = pd.DataFrame(tem_list, columns=columns)
 df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
-logging.info(f'df: \n{df.to_string()}')
+# logging.info(f'df: \n{df.to_string()}')
 
 '''
 打印error
@@ -133,3 +136,5 @@ if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 # 按时间戳列倒序排序
 # df_sorted = df2.sort_values(by='Timestamp', ascending=False)
 # logging.info(f'df_sorted: \n{df_sorted.to_string()}')
+
+ad_pool(df2)
