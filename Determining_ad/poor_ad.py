@@ -9,7 +9,7 @@ import logging
 def ad_pool(df):
     df.query('adId == "991" or adId == "992"', inplace=True)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
-    logging.info(f'缓存池的df: \n{df.to_string()}')
+    logging.info(f'缓存池的的df: \n{df.to_string()}')
     # logging.info(f'991的duplicates: \n{duplicates.to_string()}')
 
     # 判断相同订单号，28的数量=3+4的数量

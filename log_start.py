@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # 启动adb logcat命令并将其输出定向到管道      标签为LOGCAT_CONSOLE且日志等级为INFO的日志
 logging.info("启动adb logcat命令")
 # 清除日志
-subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-c'])
-logcat = subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-s', 'LOGCAT_CONSOLE'], stdout=subprocess.PIPE)
+subprocess.Popen(['adb', '-s', 'NZFYY55DEUO7V8D6', 'logcat', '-c'])
+logcat = subprocess.Popen(['adb', '-s', 'NZFYY55DEUO7V8D6', 'logcat', '-s', 'LOGCAT_CONSOLE'], stdout=subprocess.PIPE)
 log_list = []
 
 while True:
