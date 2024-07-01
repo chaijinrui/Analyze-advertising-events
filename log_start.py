@@ -3,11 +3,12 @@ import time
 import logging
 from urllib.parse import unquote_plus
 
-
 import pandas as pd
 import re
+import warnings
 
 from Determining_ad.poor_ad import *
+from Determining_ad.first_ad import *
 
 '''
 连接手机、获取日志、断开日志
@@ -17,8 +18,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # 启动adb logcat命令并将其输出定向到管道      标签为LOGCAT_CONSOLE且日志等级为INFO的日志
 logging.info("启动adb logcat命令")
 # 清除日志
-subprocess.Popen(['adb', '-s', 'NZFYY55DEUO7V8D6', 'logcat', '-c'])
-logcat = subprocess.Popen(['adb', '-s', 'NZFYY55DEUO7V8D6', 'logcat', '-s', 'LOGCAT_CONSOLE'], stdout=subprocess.PIPE)
+subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-c'])
+logcat = subprocess.Popen(['adb', '-s', 'VWMF6PRSUGVC4LGM', 'logcat', '-s', 'LOGCAT_CONSOLE'], stdout=subprocess.PIPE)
 log_list = []
 
 while True:
@@ -92,7 +93,7 @@ df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 '''
 err_row = df.query('Level == "E"')
 if err_row.empty:
-    logging.info('没有报错')
+    logging.info('日志没有报错')
 else:
     err_row_message = err_row['Message']
     logging.info(f'err_row_message: {err_row_message}')
@@ -124,6 +125,7 @@ df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 # 增加缺失值标记 Missing，df2是可以分析广告事件的数据
+
 df2 = df.applymap(lambda x: 'Missing' if x.strip() == '' else x)
 logging.info(f'df2: \n{df2.to_string()}')
 
@@ -138,3 +140,4 @@ if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 # logging.info(f'df_sorted: \n{df_sorted.to_string()}')
 
 ad_pool(df2)
+ad_first(df2)
