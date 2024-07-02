@@ -26,21 +26,25 @@ def ad_first(df):
     # 以adOrderNo分组，然后统计每个分组中每个adType出现的次数，没有adtype的会被填为0
     grouped_counts = df.groupby('adOrderNo')['adType'].value_counts().unstack(fill_value=0)
     logging.info(f'grouped_counts: \n\n{grouped_counts}')
+    logging.info(f'列表列: \n\n{list(grouped_counts.columns)}')
 
     '''
     申明不同情况的adtype值
     '''
     # 成功
-    n1 = grouped_counts['18']
-    n2 = grouped_counts['6']
-    n3 = grouped_counts['33']
-    n4 = grouped_counts['35']
-    n5 = grouped_counts['0']
-    n6 = grouped_counts['26']
-    n7 = grouped_counts['1']
-    # 失败
-    n8 = grouped_counts['5']
-    n9 = grouped_counts['29']
+    try:
+        n1 = grouped_counts['18']
+        n2 = grouped_counts['6']
+        n3 = grouped_counts['33']
+        n4 = grouped_counts['35']
+        n5 = grouped_counts['0']
+        n6 = grouped_counts['26']
+        n7 = grouped_counts['1']
+        # 失败
+        n8 = grouped_counts['5']
+        n9 = grouped_counts['29']
+    except KeyError as e:
+        print("异常是：", e)
 
     # 前提条件 18的数量=成功或失败的数量
     if n1 == n2 or n8 == n1:

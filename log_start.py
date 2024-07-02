@@ -135,9 +135,5 @@ logging.info(f'df2: \n{df2.to_string()}')
 df2.apply(lambda row: logging.warning(f'adOrderNo和adId不符: {row["adOrderNo"]}, {row["adId"]}')
 if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 
-# 按时间戳列倒序排序
-# df_sorted = df2.sort_values(by='Timestamp', ascending=False)
-# logging.info(f'df_sorted: \n{df_sorted.to_string()}')
-
 ad_pool(df2)
 ad_first(df2)
