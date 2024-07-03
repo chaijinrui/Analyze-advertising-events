@@ -7,7 +7,7 @@ import logging
 
 
 def ad_pool(df):
-    poor_df=df.query('adId == "991" or adId == "992"', inplace=False)
+    poor_df = df.query('adId == "991" or adId == "992"', inplace=False)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
     logging.info(f'缓存池的的df: \n{poor_df.to_string()}')
     # logging.info(f'991的duplicates: \n{duplicates.to_string()}')
