@@ -1,11 +1,10 @@
-'''
-缓存池的逻辑，目前是根据106竞价金额判断，请求池为991还是992
-看oppo 十万个冷知识1.4.9的逻辑
-同一回合的请求，不同参数、状态，订单号都是相同的
-'''
+
 import logging
 
-
+'''
+同一个订单号的请求，可能有3也可能有4的情况
+判断广告事件是否符合预期，符合则返回True，否则返回其他情况
+'''
 def ad_pool(df):
     poor_df = df.query('adId == "991" or adId == "992"', inplace=False)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]

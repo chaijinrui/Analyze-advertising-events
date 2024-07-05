@@ -1,4 +1,3 @@
-
 import logging
 
 '''
@@ -10,10 +9,12 @@ import logging
 
 
 def ad_first(df):
-    df.query('(adId == "1111") | (adId == "1114") | (adId == "231") | (adId == "232") | (adId == "1091")', inplace=True)
+    df.query(
+        '(adId == "1112") | (adId == "1113") | (adId == "1115") | (adId == "1116") | (adId == "241")| (adId == "251")| (adId == "242")| (adId == "252")| (adId == "1092")| (adId == "1093")',
+        inplace=True)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
 
-    logging.info(f'首屏广告的df: \n\n{df.to_string()}')
+    logging.info(f'第二屏广告的df: \n\n{df.to_string()}')
     # logging.info(f'991的duplicates: \n{duplicates.to_string()}')
     # 以adOrderNo分组，然后统计每个分组中每个adType出现的次数，没有adtype的会被填为0
     grouped_counts = df.groupby('adOrderNo')['adType'].value_counts().unstack(fill_value=0)
