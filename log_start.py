@@ -9,6 +9,7 @@ import warnings
 
 from Determining_ad.poor_ad import *
 from Determining_ad.first_ad import *
+from Determining_ad.second_ad import ad_second
 
 '''
 连接手机、获取日志、断开日志
@@ -38,11 +39,6 @@ while True:
     if line:
         log_list.append(line)
 
-    # # 判断广告事件
-    # if "==== 广告事件 ===" in line:
-    #     # 动态提添加到列表
-    # log_list.append(line)
-
     # 打印error
     if "E/" in line:
         logging.error(line)
@@ -59,6 +55,7 @@ logcat.kill()
 '''
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
 ve_value_pattern = r've=(.*?)(&|$)'
+special_pattern = r'value\[(\d+)\|(\d+)\|(\d+)\]'
 tem_list = []
 for log_line in log_list:
     match = re.match(log_pattern, log_line)
@@ -74,6 +71,14 @@ for log_line in log_list:
                 ve_value = match.group(1)
                 logging.info(f'版本号: {ve_value}')
         tem_list.append([timestamp, level, message])
+        '''
+        判断特殊情况
+        '''
+        if 'type to video to play video' in message:
+            # 返回一个列表
+            matches = re.findall(special_pattern, message)
+            error_value, ad_id, ord_id = match[0]
+            logging.error(f'错误码: {error_value}, 广告位: {ad_id}, 订单id: {ord_id}')
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
 columns = [
@@ -86,7 +91,7 @@ df = pd.DataFrame(tem_list, columns=columns)
 df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
-# logging.info(f'df: \n{df.to_string()}')
+logging.info(f'df: \n{df.to_string()}')
 
 '''
 打印error
@@ -97,10 +102,6 @@ if err_row.empty:
 else:
     err_row_message = err_row['Message']
     logging.info(f'err_row_message: {err_row_message}')
-
-'''
-广告加载出错的时候
-'''
 
 '''
 广告事件
@@ -127,7 +128,7 @@ df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
 # 增加缺失值标记 Missing，df2是可以分析广告事件的数据
 
 df2 = df.applymap(lambda x: 'Missing' if x.strip() == '' else x)
-logging.info(f'df2: \n{df2.to_string()}')
+# logging.info(f'df2: \n{df2.to_string()}')
 
 '''
 判断adOrderNo是否正确（之前出现过bug：adOrderNo非本广告位的订单号）
@@ -137,3 +138,4 @@ if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 
 ad_pool(df2)
 ad_first(df2)
+ad_second(df2)

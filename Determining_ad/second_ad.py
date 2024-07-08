@@ -8,44 +8,43 @@ import logging
 '''
 
 
-def ad_first(df):
+def ad_second(df):
     df.query(
         '(adId == "1112") | (adId == "1113") | (adId == "1115") | (adId == "1116") | (adId == "241")| (adId == "251")| (adId == "242")| (adId == "252")| (adId == "1092")| (adId == "1093")',
         inplace=True)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
 
-    logging.info(f'第二屏广告的df: \n\n{df.to_string()}')
+    logging.info(f'第二个广告的df: \n{df.to_string()}')
     # logging.info(f'991的duplicates: \n{duplicates.to_string()}')
     # 以adOrderNo分组，然后统计每个分组中每个adType出现的次数，没有adtype的会被填为0
     grouped_counts = df.groupby('adOrderNo')['adType'].value_counts().unstack(fill_value=0)
     # logging.info(f'grouped_counts: \n{grouped_counts}')
 
     '''
-    检验事件是否存在，创建一个字典，事件和事件出现次数对应起来
+    检验事件是否存在,不存在赋0
     '''
-    values = {}
     column_names = ['18', '6', '33', '35', '0', '26', '1', '5', '29']
-    column_codes = ['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9']
-    for column_name, column_code in zip(column_names, column_codes):
+    for column_name in column_names:
         if column_name not in grouped_counts:
             grouped_counts[column_name] = 0
-        values[column_code] = grouped_counts[column_name]
-    # logging.info(f'grouped_counts: \n{grouped_counts}')
-    # logging.info(f'grouped_counts[column_name]: \n{grouped_counts["18"]}')
-    # logging.info(f'values[n]:{values["n1"]}')
 
+    # 使用apply()函数将check_ad_events应用到grouped_counts的每一行
+    grouped_counts['check'] = grouped_counts.apply(check_ad_events, axis=1)
+
+    logging.info(f'第二个广告的事件值: \n{grouped_counts.to_string()}')
+
+
+# 定义一个函数来检查每行的事件值
+def check_ad_events(row):
     # 前提条件 18的数量=成功或失败的数量
-    if values['n1'].sum() == values['n2'].sum() or values['n1'].sum() == values['n8'].sum():
-        if (values['n3'].sum() == values['n4'].sum() == values['n5'].sum() == values['n6'].sum() == values[
-            'n7'].sum()) & values['n3'].sum() != 0:
-            grouped_counts['check'] = "点击了adbutton"
-        elif (values['n4'].sum() == values['n5'].sum() == values['n7'].sum()) & values['n4'].sum() != 0:
-            grouped_counts['check'] = "点击了广告"
-        elif (values['n4'].sum() == values['n5'].sum()) & values['n4'].sum() != 0:
-            grouped_counts['check'] = "只展示了广告"
-        elif values['n1'].sum() == values['n8'].sum():
-            grouped_counts['check'] = "竞价失败"
+    if row['18'] == row['6'] or row['18'] == row['5']:
+        if row['35'] == row['0'] == row['26'] == row['1'] and row['33'] != 0:
+            return "点击了adbutton"
+        elif row['35'] == row['35'] == row['1'] and row['35'] != 0:
+            return "点击了广告"
+        elif row['35'] == row['0'] and row['35'] != 0:
+            return "只展示了广告"
+        elif row['18'] == row['5'] != 0:
+            return "竞价失败"
     else:
-        grouped_counts['check'] = "广告事件不正确"
-
-    logging.info(f'首个广告的事件值: \n{grouped_counts.to_string()}')
+        return "广告事件不正确"
