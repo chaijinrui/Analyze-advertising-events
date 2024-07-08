@@ -7,9 +7,10 @@ import pandas as pd
 import re
 import warnings
 
+from Determining_ad.first_red_packet_ad import *
 from Determining_ad.poor_ad import *
 from Determining_ad.first_ad import *
-from Determining_ad.second_ad import ad_second
+from Determining_ad.second_ad import *
 
 '''
 连接手机、获取日志、断开日志
@@ -74,10 +75,10 @@ for log_line in log_list:
         '''
         判断特殊情况
         '''
-        if 'type to video to play video' in message:
+        if 'type to video to play video' and 'key[ADSDK]' in message:
             # 返回一个列表
             matches = re.findall(special_pattern, message)
-            error_value, ad_id, ord_id = match[0]
+            error_value, ad_id, ord_id = match # TODO
             logging.error(f'错误码: {error_value}, 广告位: {ad_id}, 订单id: {ord_id}')
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
@@ -91,7 +92,7 @@ df = pd.DataFrame(tem_list, columns=columns)
 df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%m-%d %H:%M:%S.%f')
 # 确保Timestamp列的显示格式为'%m-%d %H:%M:%S.%f'
 df['Timestamp'] = df['Timestamp'].dt.strftime('%m-%d %H:%M:%S.%f')
-logging.info(f'df: \n{df.to_string()}')
+# logging.info(f'df: \n{df.to_string()}')
 
 '''
 打印error
@@ -139,3 +140,4 @@ if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 ad_pool(df2)
 ad_first(df2)
 ad_second(df2)
+ad_red_packet(df2)

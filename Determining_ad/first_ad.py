@@ -44,5 +44,7 @@ def check_ad_events(row):
             return "只展示了广告"
         elif row['18'] == row['5'] != 0:
             return "竞价失败"
+        else:
+            return "广告事件不正确"
     else:
         return "广告事件不正确"
