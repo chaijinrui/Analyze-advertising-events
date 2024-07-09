@@ -11,6 +11,7 @@ from Determining_ad.first_red_packet_ad import *
 from Determining_ad.poor_ad import *
 from Determining_ad.first_ad import *
 from Determining_ad.second_ad import *
+from Determining_ad.second_red_packet_ad import ad_red_packet2
 
 '''
 连接手机、获取日志、断开日志
@@ -56,7 +57,8 @@ logcat.kill()
 '''
 log_pattern = r"(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+\w+\s+\w+\s+(\w)\s+(LOGCAT_CONSOLE):\s+(.*?)\r\n"
 ve_value_pattern = r've=(.*?)(&|$)'
-special_pattern = r'value\[(\d+)\|(\d+)\|(\d+)\]'
+special_pattern1 = r'value\[(\d+)\|(\d+)\|(\d+)\]'
+special_pattern2 = r'value\[(\d+)\|(\d+)\|(\d+)(?:.*?)]'
 tem_list = []
 for log_line in log_list:
     match = re.match(log_pattern, log_line)
@@ -75,11 +77,19 @@ for log_line in log_list:
         '''
         判断特殊情况
         '''
-        if 'type to video to play video' and 'key[ADSDK]' in message:
+        if 'type to video to play video' in message and 'key[ADSDK]' in message:
+            logging.info(f'特殊情况: {message}')
             # 返回一个列表
-            matches = re.findall(special_pattern, message)
-            error_value, ad_id, ord_id = match # TODO
-            logging.error(f'错误码: {error_value}, 广告位: {ad_id}, 订单id: {ord_id}')
+            matches1 = re.findall(special_pattern1, message)
+            matches2 = re.findall(special_pattern2, message)
+            if matches1:
+                # logging.info(f'matches1: {matches1}')
+                error_value, ad_id, ord_id = matches1[0]
+                logging.error(f'错误码: {error_value}, 广告位: {ad_id}, 订单id: {ord_id}')
+            elif matches2:
+                # logging.info(f'matches2: {matches2}')
+                error_value, ad_id, ord_id = matches2[0]
+                logging.error(f'错误码: {error_value}, 广告位: {ad_id}, 订单id: {ord_id}')
     else:
         logging.warning(f'log_list没有匹配到日志: {log_line}')
 columns = [
@@ -141,3 +151,4 @@ ad_pool(df2)
 ad_first(df2)
 ad_second(df2)
 ad_red_packet(df2)
+ad_red_packet2(df2)

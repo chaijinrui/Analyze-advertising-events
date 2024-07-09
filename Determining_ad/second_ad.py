@@ -31,7 +31,7 @@ def ad_second(df):
 
     # 使用apply()函数将check_ad_events应用到grouped_counts的每一行
     grouped_counts['check'] = grouped_counts.apply(check_ad_events, axis=1)
-
+    logging.info("==================================================================================================================================================================================")
     logging.info(f'第二个广告的事件值: \n{grouped_counts.to_string()}')
 
 

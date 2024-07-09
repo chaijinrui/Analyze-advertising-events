@@ -26,5 +26,5 @@ def ad_pool(df):
     elif '28' in grouped_counts.columns:
         grouped_counts['check'] = "没有28"
         logging.warning("没有28")
-
+    logging.info("==================================================================================================================================================================================")
     logging.info(f'缓存池订单号: \n{grouped_counts.to_string()}')

@@ -9,7 +9,8 @@ import logging
 
 
 def ad_first(df):
-    first_df=df.query('(adId == "1111") | (adId == "1114") | (adId == "231") | (adId == "232") | (adId == "1091")', inplace=False)
+    first_df = df.query('(adId == "1111") | (adId == "1114") | (adId == "231") | (adId == "232") | (adId == "1091")',
+                        inplace=False)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
 
     logging.info(f'首个广告的df: \n{first_df.to_string()}')
@@ -28,7 +29,7 @@ def ad_first(df):
 
     # 使用apply()函数将check_ad_events应用到grouped_counts的每一行
     grouped_counts['check'] = grouped_counts.apply(check_ad_events, axis=1)
-
+    logging.info('==================================================================================================================================================================================')
     logging.info(f'首个广告的事件值: \n{grouped_counts.to_string()}')
 
 

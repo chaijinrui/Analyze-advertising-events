@@ -27,7 +27,8 @@ def ad_red_packet2(df):
 
     # 使用apply()函数将check_ad_events应用到grouped_counts的每一行
     grouped_counts['check'] = grouped_counts.apply(check_ad_events, axis=1)
-    logging.info(f'红包之后广告事件值: \n{grouped_counts.to_string()}')
+    logging.info("==================================================================================================================================================================================")
+    logging.info(f'红包第二个广告事件值: \n{grouped_counts.to_string()}')
 
 
 # 定义一个函数来检查每行的事件值
