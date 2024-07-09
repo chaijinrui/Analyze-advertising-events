@@ -148,7 +148,14 @@ df2.apply(lambda row: logging.warning(f'adOrderNo和adId不符: {row["adOrderNo"
 if row["adOrderNo"].split('_')[0] != row["adId"] else None, axis=1)
 
 ad_pool(df2)
-ad_first(df2)
-ad_second(df2)
-ad_red_packet(df2)
-ad_red_packet2(df2)
+first_df = ad_first(df2)
+second_df = ad_second(df2)
+red_df1 = ad_red_packet(df2)
+red_df2 = ad_red_packet2(df2)
+
+# 报告异常广告事件
+target_value = "广告事件不正确"
+list_df = [first_df, second_df, red_df1, red_df2]
+for i in list_df:
+    for key in i['check'].keys():
+        logging.warning(f'此订单广告：{key} 广告事件不正确')

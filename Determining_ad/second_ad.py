@@ -10,7 +10,7 @@ import logging
 
 
 def ad_second(df):
-    second_df=df.query(
+    second_df = df.query(
         '(adId == "1112") | (adId == "1113") | (adId == "1115") | (adId == "1116") | (adId == "241")| (adId == "251")| (adId == "242")| (adId == "252")| (adId == "1092")| (adId == "1093")',
         inplace=False)
     # duplicates = df[df.duplicated(subset='adOrderNo', keep=False)]
@@ -31,21 +31,23 @@ def ad_second(df):
 
     # 使用apply()函数将check_ad_events应用到grouped_counts的每一行
     grouped_counts['check'] = grouped_counts.apply(check_ad_events, axis=1)
-    logging.info("==================================================================================================================================================================================")
+    logging.info(
+        "==================================================================================================================================================================================")
     logging.info(f'第二个广告的事件值: \n{grouped_counts.to_string()}')
+    return grouped_counts
 
 
 # 定义一个函数来检查每行的事件值
 def check_ad_events(row):
     # 前提条件 18的数量=成功或失败的数量
     if row['18'] == row['6'] or row['18'] == row['5']:
-        if row['35'] == row['0'] == row['26'] == row['1'] and row['33'] != 0:
+        if row['35'] == row['0'] == row['26'] == row['1'] and row['33'] != 0 and row['29'] != 0:
             return "点击了adbutton"
-        elif row['35'] == row['35'] == row['1'] and row['35'] != 0:
+        elif row['35'] == row['35'] == row['1'] and row['35'] != 0 and row['29'] != 0:
             return "点击了广告"
-        elif row['35'] == row['0'] and row['35'] != 0:
+        elif row['35'] == row['0'] and row['35'] != 0 and row['29'] != 0:
             return "只展示了广告"
-        elif row['18'] == row['5'] != 0:
+        elif row['18'] == row['5'] != 0 and row['6'] != 0:
             return "竞价失败"
         else:
             return "广告事件不正确"
